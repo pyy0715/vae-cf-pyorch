@@ -3,8 +3,6 @@ import sys
 import pandas as pd
 import numpy as np
 from scipy import sparse
-from typing import List
-from tqdm import tqdm 
 
 import pytorch_lightning as pl
 
@@ -183,9 +181,11 @@ class MovieLens_DataModule(pl.LightningDataModule):
       vad_plays = vad_plays.loc[vad_plays['movieId'].isin(unique_sid)]
       test_plays = test_plays.loc[test_plays['movieId'].isin(unique_sid)]
       
+      # Split Dataset
       vad_plays_tr, vad_plays_te = split_train_test_proportion(vad_plays)
       test_plays_tr, test_plays_te = split_train_test_proportion(test_plays)
       
+      # Save Dataset
       train_data = numerize(train_plays, profile2id, show2id)
       self.save_data(train_data, 'train')
 
@@ -213,10 +213,10 @@ if __name__ == '__main__':
    movielens_dm = MovieLens_DataModule(args)
    movielens_dm.setup()
    train_data = movielens_dm.load_data(stage='train')
-   tr, te = movielens_dm.load_data(stage='validation')
+   val_tr, val_te = movielens_dm.load_data(stage='validation')
    test_tr, test_te = movielens_dm.load_data(stage='test')
    
    print(train_data.shape)
-   print(tr.shape, te.shape)
+   print(val_tr.shape, val_te.shape)
    print(test_tr.shape, test_te.shape)
    
