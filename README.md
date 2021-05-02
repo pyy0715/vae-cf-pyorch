@@ -15,7 +15,6 @@ python main.py
 ```
 
 ## Results
-**RUN EPOCH 50**
 
 **Test Result**
 |         Diff        | Model(unofficial) |   Official Code   |
