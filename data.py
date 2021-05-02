@@ -4,6 +4,7 @@ import pandas as pd
 import numpy as np
 from scipy import sparse
 
+import torch
 import pytorch_lightning as pl
 
 from download import download_extract
@@ -82,15 +83,14 @@ def numerize(tp, profile2id, show2id):
     sid = tp['movieId'].apply(lambda x: show2id[x])
     return pd.DataFrame(data={'uid': uid, 'sid': sid}, columns=['uid', 'sid'])
 
-class MovieLens_DataModule(pl.LightningDataModule):
-   def __init__(self, hparams):
-      super().__init__()
-      self.hparams = hparams
-      self.pro_dir = os.path.join(self.hparams['DATA_DIR'], 'pro_sg')
+class MovieLens_DataModule(object):
+   def __init__(self, args):
+      self.args = args
+      self.pro_dir = os.path.join(args.data_dir, 'pro_sg')
       
    def prepare_data(self):
-      if not os.path.exists(self.hparams['DATA_DIR']):
-         download_extract(self.hparams['URL'])
+      if not os.path.exists(self.args.data_dir):
+         download_extract(self.args.data_url)
       
    def read_data(self, path):
       if path.endswith('csv'):
@@ -127,7 +127,7 @@ class MovieLens_DataModule(pl.LightningDataModule):
          data = sparse.csr_matrix((np.ones_like(rows),(rows, cols)), 
                                   dtype='float64',
                                   shape=(n_users, self.n_items))
-         return data
+         return self.dataloader(data)
 
       elif stage == 'validation' or stage=='test':
          tr_path = os.path.join(self.pro_dir, '{}_tr.csv'.format(stage))
@@ -148,13 +148,13 @@ class MovieLens_DataModule(pl.LightningDataModule):
          data_te = sparse.csr_matrix((np.ones_like(rows_te), (rows_te, cols_te)), 
                                      dtype='float64', 
                                      shape=(end_idx - start_idx + 1, self.n_items))
-         return data_tr, data_te
+         return self.dataloader(data_tr, shuffle=False), data_te
    
      
    def setup(self):   
       # Read Data, Filter Data   
       self.prepare_data()
-      raw_data = self.read_data(path=os.path.join(self.hparams['DATA_DIR'], 'ratings.csv'))
+      raw_data = self.read_data(path=os.path.join(self.args.data_dir, 'ratings.csv'))
       raw_data = raw_data[raw_data['rating'] > 3.5]
       raw_data, user_activity, item_popularity = filter_triplets(raw_data)
       filtering_results(raw_data, user_activity, item_popularity)
@@ -201,22 +201,10 @@ class MovieLens_DataModule(pl.LightningDataModule):
       test_data_te = numerize(test_plays_te, profile2id, show2id)
       self.save_data(test_data_te, 'test_te')
       
-
-         
-   
-if __name__ == '__main__':
-   args = {
-      "URL": "https://files.grouplens.org/datasets/movielens/ml-20m.zip",
-      "DATA_DIR": "./data/ml-20m",
-   }
-   pl.seed_everything(98765)
-   movielens_dm = MovieLens_DataModule(args)
-   movielens_dm.setup()
-   train_data = movielens_dm.load_data(stage='train')
-   val_tr, val_te = movielens_dm.load_data(stage='validation')
-   test_tr, test_te = movielens_dm.load_data(stage='test')
-   
-   print(train_data.shape)
-   print(val_tr.shape, val_te.shape)
-   print(test_tr.shape, test_te.shape)
-   
+   def dataloader(self, data, shuffle=False):
+      dataset = torch.FloatTensor(data.toarray())
+      return torch.utils.data.DataLoader(dataset,
+                                         batch_size = self.args.batch_size,
+                                         num_workers = 4,
+                                         pin_memory = True,
+                                         shuffle = shuffle)

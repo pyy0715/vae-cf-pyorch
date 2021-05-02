@@ -1,4 +1,0 @@
-{
-   "URL":"https://files.grouplens.org/datasets/movielens/ml-20m.zip",
-   "DATA_DIR": "./data/ml-20m"
-}
