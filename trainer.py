@@ -77,7 +77,7 @@ class Trainer(object):
                anneal,
                ))
                
-      writer.add_scalar('data/loss/train', 
+      writer.add_scalar('loss/train', 
                         train_loss, 
                         self.epochs)
 
@@ -130,10 +130,10 @@ class Trainer(object):
          r20 = np.mean(r20_list)
          r50 = np.mean(r50_list)
          
-         writer.add_scalar('data/loss/val', total_loss, self.epochs)
-         writer.add_scalar('data/metric/ndcg@100', n100, self.epochs)
-         writer.add_scalar('data/metric/recall@20', r20, self.epochs)
-         writer.add_scalar('data/metric/recall@50', r50, self.epochs)
+         writer.add_scalar('loss/val', total_loss, self.epochs)
+         writer.add_scalar('metric/ndcg@100', n100, self.epochs)
+         writer.add_scalar('metric/recall@20', r20, self.epochs)
+         writer.add_scalar('metric/recall@50', r50, self.epochs)
          
          print("[Valid] | Epoch: {:3d} | Loss: {:4.2f} | NDCG@100: {:5.3f} | Recall@20: {:5.3f} | Recall@50: {:5.3f}".format(
                    self.epochs+1, total_loss, n100, r20, r50))
@@ -164,7 +164,6 @@ class Trainer(object):
       try:
          self.args = torch.load(os.path.join(self.args.ckpt_dir, 'args.pt'))
          logger.info("***** Args loaded *****")
-         print(self.args)
          self.model.load_state_dict(torch.load(os.path.join(self.args.ckpt_dir, 'model.pt')))
          self.model.to(self.device)
          logger.info("***** Model Loaded *****")
