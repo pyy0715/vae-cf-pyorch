@@ -166,4 +166,5 @@ Thumbs.db
 .prof
 
 *runs/*
+*ckpt/*
 # End of https://www.toptal.com/developers/gitignore/api/python,data
