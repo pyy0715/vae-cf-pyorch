@@ -11,7 +11,7 @@ class MultiDAE(nn.Module):
       if q_dims:
          assert q_dims[0] == p_dims[-1], "In and Out dimensions must equal to each other"
          assert q_dims[-1] == p_dims[0], "Latent dimension for p- and q- network mismatches."
-         self.q_dims = self.q_dims
+         self.q_dims = q_dims
       else:
          self.q_dims = p_dims[::-1]
 
