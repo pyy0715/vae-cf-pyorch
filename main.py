@@ -14,7 +14,7 @@ def cli_main(args):
     pl.seed_everything(args.seed)
     
     movielens_dm = MovieLens_DataModule(args)
-    if os.path.isdir('./data/ml-20m/pro_sg') and len(os.listdir('./data/ml-20m/pro_sg')) != 6:
+    if os.path.isdir('./data/ml-20m/pro_sg')==False and len(os.listdir('./data/ml-20m/pro_sg')) != 6:
         movielens_dm.setup()
 
     train_data = movielens_dm.load_data(stage="train")
@@ -28,7 +28,7 @@ def cli_main(args):
     best_ndcg = -np.inf
     for epoch in range(args.epochs):
         trainer.train(train_data)
-        val_loss, n100_list, r20_list, r50_list = trainer.evaluate(
+        _, n100_list, r20_list, r50_list = trainer.evaluate(
             val_tr, val_te, mode="validation")
 
         result = np.mean(n100_list)

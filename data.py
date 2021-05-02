@@ -127,7 +127,7 @@ class MovieLens_DataModule(object):
          data = sparse.csr_matrix((np.ones_like(rows),(rows, cols)), 
                                   dtype='float64',
                                   shape=(n_users, self.n_items))
-         return self.dataloader(data)
+         return self.dataloader(data, shuffle=True)
 
       elif stage == 'validation' or stage=='test':
          tr_path = os.path.join(self.pro_dir, '{}_tr.csv'.format(stage))

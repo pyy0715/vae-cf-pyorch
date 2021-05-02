@@ -1,7 +1,6 @@
 import os
 import logging
 import numpy as np
-from tqdm import tqdm 
 
 import torch
 import torch.nn as nn
@@ -55,17 +54,17 @@ class Trainer(object):
          x = x.to(self.device)
          
          if self.args.total_anneal_steps > 0:
-            self.anneal = min(self.args.anneal_cap, 1. *self.update_count / self.args.total_anneal_steps)
+            anneal = min(self.args.anneal_cap, 1. * self.update_count / self.args.total_anneal_steps)
          else:
-            self.anneal = self.args.anneal_cap
+            anneal = self.args.anneal_cap
          
          self.update_count+=1
 
-         self.optimizer.zero_grad(set_to_none=True)
+         self.optimizer.zero_grad()
          recon_batch, mu, logvar = self.model(x)
 
          loss = self.model.loss_function(
-             recon_batch, x, mu, logvar, self.anneal)
+             recon_batch, x, mu, logvar, anneal)
          loss.backward()
          train_loss += loss.item()
          self.optimizer.step()
@@ -75,7 +74,7 @@ class Trainer(object):
                self.epochs+1,
                batch_idx, len(train_dataloader),
                train_loss / batch_idx, 
-               self.anneal,
+               anneal,
                ))
                
       writer.add_scalar('data/loss/train', 
@@ -129,7 +128,7 @@ class Trainer(object):
          
          n100 = np.mean(n100_list)
          r20 = np.mean(r20_list)
-         r50 = np.mean(r20_list)
+         r50 = np.mean(r50_list)
          
          writer.add_scalar('data/loss/val', total_loss, self.epochs)
          writer.add_scalar('data/metric/ndcg@100', n100, self.epochs)
@@ -138,7 +137,7 @@ class Trainer(object):
          
          print("[Valid] | Epoch: {:3d} | Loss: {:4.2f} | NDCG@100: {:5.3f} | Recall@20: {:5.3f} | Recall@50: {:5.3f}".format(
                    self.epochs+1, total_loss, n100, r20, r50))
-         print('-'*99)
+         print('-'*89)
 
       self.epochs += 1
       return total_loss, n100_list, r20_list, r50_list
