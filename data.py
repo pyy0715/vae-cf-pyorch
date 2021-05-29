@@ -90,6 +90,11 @@ class MovieLens_DataModule(object):
       
    def prepare_data(self):
       if not os.path.exists(self.args.data_dir):
+        download_extract(self.args.data_url)
+      
+      file_list = os.listdir(self.args.data_dir)
+      csv_files = [file for file in file_list if file.endswith(".csv")]
+      if len(set(csv_files))!=6:
          download_extract(self.args.data_url)
       
    def read_data(self, path):
