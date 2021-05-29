@@ -79,6 +79,8 @@ if __name__ == "__main__":
     
     parser.add_argument("--seed", type=int, default=98765,
                         help="random seed")
+    parser.add_argument("--num_workers", type=int, default=2,
+                        help="num workers for dataloader")
     
     args = parser.parse_args()
     cli_main(args)

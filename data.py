@@ -210,6 +210,6 @@ class MovieLens_DataModule(object):
       dataset = torch.FloatTensor(data.toarray())
       return torch.utils.data.DataLoader(dataset,
                                          batch_size = self.args.batch_size,
-                                         num_workers = 4,
+                                         num_workers = self.args.num_workers,
                                          pin_memory = True,
                                          shuffle = shuffle)
