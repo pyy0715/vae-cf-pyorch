@@ -14,7 +14,7 @@ def cli_main(args):
     pl.seed_everything(args.seed)
     
     movielens_dm = MovieLens_DataModule(args)
-    if os.path.isdir('./data/ml-20m/pro_sg')==False and len(os.listdir('./data/ml-20m/pro_sg')) != 6:
+    if os.path.isdir('./data/ml-20m/pro_sg')==False:
         movielens_dm.setup()
 
     train_data = movielens_dm.load_data(stage="train")
